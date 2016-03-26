@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/charts/angular-chart.css">
+
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+        <script src="static/chart.min.js"></script>
+        <script src="static/charts/angular-chart.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    </head>
+
+    <body ng-app="myApp" ng-controller="customersCtrl">
+
+        <h3>Ambience</h3>
+        <br/>
+        <div class="container" style="width:80%;height:80%">
+            <canvas id="line" class="chart chart-line" data="data"
+            labels="labels" legend="true" series="series"
+            click="onCanvasClick">
+            </canvas>
+        </div>
+
+        <h3>Settings</h3>
+        <br/>
+        <div class="container" style="width:80%;height:80%">
+            <div>
+                <table style="width:100%">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr ng-repeat="row in tableData">
+                        <td>{{!row.key}}</td>
+                        <td>{{!row.value}}</td>
+                        <td><button id="on-{{!row.key}}" class="btn btn-primary" ng-click="settingsOn($event)" ng-disabled="'on' == '{{!row.value}}'?true:false">on</button>&nbsp;&nbsp;&nbsp;<button id="off-{{!row.key}}" class="btn btn-primary" ng-click="settingsOff($event)" ng-disabled="'off' == '{{!row.value}}'?true:false">off</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <br/>
+    </div>
+</div>
+
+<script>
+
+    var app = angular.module('myApp', ["chart.js"]);
+
+    app.controller('customersCtrl', ['$scope', '$http', '$window',
+    function($scope, $http, $window) {
+        $scope.settingsList = "Loading..."
+        $scope.motionSettingValue = 'Wait...'
+
+        var updateCanvas = function(){
+            $('.nav-tabs a[href="#home"]').tab('show')
+            $http.get("http://{{server_host}}/api/v1/status").success(function(response) {
+                console.log(response);
+
+                var tempr = [];
+                var times = [];
+                var hums  = [];
+
+                for(var i = 0; i < response.temperature.length; i++) {
+                    tempr.push(parseInt(response.temperature[i].temperature));
+                    times.push(response.temperature[i].date);
+                    hums.push(parseInt(response.humidity[i].humidity));
+                }
+                $scope.labels = times;
+                $scope.series = ['Temperature C', 'Humidity %'];
+                $scope.data = [
+                tempr,
+                hums
+                ];
+            });
+        }
+
+        updateCanvas();
+
+        /*$scope.onCanvasClick = function (points, evt) {
+            console.log(points, evt);
+        };*/
+
+        //<button type="button" id='+response[i].key +' class="btn btn-primary" data-toggle="button">' + response[i].value + '</button>
+        var updateSettingsList = function(){
+            $http.get("http://{{server_host}}/api/v1/settings").success(function(response) {
+                $scope.tableData = []
+
+                for(var i = 0; i < response.length; i++) {
+                    $scope.tableData.push({
+                        key: response[i].key,
+                        value: response[i].value,
+                        action:''
+                    });
+                }
+            });
+        }
+
+        updateSettingsList();
+
+        $scope.playStream = function(){
+            $http.get('http://{{server_host}}/api/v1/stream/play?stream=' + $scope.stream).
+            success(function(data, status) {
+                $scope.stream="";
+            }).error(function(data, status) {});
+        };
+
+        $scope.stopStream = function(){
+            console.log("Stoping");
+            $http.get('http://{{server_host}}/api/v1/stream/stop');
+        }
+
+        $scope.settingsOn = function(event){
+            $http.put('http://{{server_host}}/api/v1/settings',
+            {key: event.target.id.split('-')[1], value: 'on'}).
+            then(function(data, status) {
+                $scope.tableData = []
+                $window.location.reload();
+                },function(data, status) {
+                console.log("Couldn't cahnge the setting: " + event.target.id.split('-')[1])
+            });
+
+        };
+
+        $scope.settingsOff = function(event){
+            $http.put('http://{{server_host}}/api/v1/settings',
+            {key: event.target.id.split('-')[1], value: 'off'}).
+            then(function(data, status) {
+                $scope.tableData = []
+                $window.location.reload();
+                },function(data, status) {
+                console.log("Couldn't cahnge the setting: " + event.target.id.split('-')[1])
+            });
+        };
+
+    }]);
+
+
+</script>
+</body>
+</html>
