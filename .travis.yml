@@ -4,5 +4,5 @@ python:
 install:
 - "pip install -r requirements.txt"
 - "pip install pylint"
-script: pylint --errors-only soners
+script: pylint --errors-only server.py service
 
