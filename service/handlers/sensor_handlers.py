@@ -1,6 +1,5 @@
 from __future__ import with_statement
 import logging
-#import cv2
 
 logger = logging.getLogger("arduino.server")
 from tornado.gen import coroutine
@@ -18,10 +17,10 @@ from service.models import Settings
 MAX_WORKERS = 4
 executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
-
+'''
 def take_photos():
     """ This will be executed in `executor` pool. """
-
+    import cv2
     logger.info("Taking photos")
     image_list = list()
     capture = cv2.VideoCapture(0)
@@ -39,10 +38,10 @@ def take_photos():
     del(capture)
 
     return image_list
-
+'''
 
 def send_mail(image_list):
-    logger.info("Sending mail... with photos: {}".format(image_list))
+    logger.info("Sending mail...")
     msg = MIMEMultipart()
     msg['Subject'] = '{} Motion detected...'.format(datetime.datetime.utcnow().strftime("%Y-%m-%d-%H:%M:%S.%f"))
     msg['From'] = "iothomechris@gmail.com"
@@ -63,7 +62,7 @@ def send_mail(image_list):
         s = smtplib.SMTP('smtp.gmail.com', 587)
         s.set_debuglevel(True)
         s.starttls()
-        s.login('iothomechris@gmail.com', '10th0m3chr1s')
+        s.login('************', '********')
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
         logger.info("Email sent")
@@ -71,11 +70,11 @@ def send_mail(image_list):
         logger.error(e, exc_info=True)
 
 
-def do():
+def notify():
     try:
-        logger.info("will send photos now")
         #photos = take_photos()
         #send_mail(photos)
+        send_mail([])
     except Exception as e:
         logger.error(e, exc_info=True)
 
@@ -101,4 +100,4 @@ def motion_handler(device, motion):
         motion = Settings.select().where(Settings.key == 'motion').get()
 
         if motion and motion.value == 'on':
-            yield executor.submit(do)
+            yield executor.submit(notify)
