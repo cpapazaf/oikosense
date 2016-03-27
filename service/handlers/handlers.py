@@ -1,6 +1,6 @@
 import tornado.httpserver
 import tornado.web
-import tornado.options
+from tornado.options import options
 import logging
 import os
 import base64
@@ -75,7 +75,7 @@ class InfoHandler(BaseHandler):
 
            :status 200: ok
         """
-        data = tornado.options.options.as_dict()
+        data = options.as_dict()
         data.update({'rootpath': os.path.dirname(__file__),
                      'memory': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss})
         self.write(data)
@@ -89,7 +89,7 @@ class CurentStatusHandler(BaseHandler):
 
            :status 200: ok
         """
-        with open("/media/pi/RPI/raspberry/humidity.log", "r") as myfile:
+        with open(os.path.join(self.application.settings["storage_location"], "humidity.log"), "r") as myfile:
             myfile.seek (0, 2)           # Seek @ EOF
             fsize = myfile.tell()        # Get Size
             myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars
@@ -97,7 +97,7 @@ class CurentStatusHandler(BaseHandler):
 
         humidity_content = humidity_lines[-60:]    # Get last 60 lines
 
-        with open("/media/pi/RPI/raspberry/temperature.log", "r") as myfile:
+        with open(os.path.join(self.application.settings["storage_location"], "temperature.log"), "r") as myfile:
             myfile.seek (0, 2)           # Seek @ EOF
             fsize = myfile.tell()        # Get Size
             myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars

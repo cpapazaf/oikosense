@@ -18,9 +18,14 @@ www_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'www'))
 
 define('config', default='server.conf', help='full path to the configuration file')
 define('debug', default=False, help='debug True False')
-define('port', default='8080', help='port to start server on')
-define('database_file', default=':memory:', help='full path to database')
-define('arduino_tty', default=None, help='usb serial port for arduino')
+define('port', default='8080', help='port to start server on', group='application')
+define('database_file', default=':memory:', help='full path to database', group='application')
+define('arduino_tty', default=None, help='usb serial port for arduino', group='application')
+define('storage_location', default=None, help='location in the disk to store logs and images', group='application')
+define('mail_from', default=None, help='email to use as From', group='application')
+define('mail_to', default=None, help='email to use as To', group='application')
+define('mail_login_uname', default=None, help='email to login to smtp with', group='application')
+define('mail_login_passwd', default=None, help='passwd to login to smtp with', group='application')
 
 web_urls = [
     (r'/api/info', InfoHandler),
@@ -38,12 +43,13 @@ hermes_urls = [
 ]
 
 
-def setup_application():
+def setup_application(app_options):
     settings = {
-        'debug': options.debug,
         'template_path': www_path,
         'cookie_secret': base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes),
     }
+
+    settings.update(app_options)
 
     application = tornado.web.Application(web_urls, **settings)
     tornado.web.ErrorHandler = ErrorHandler
@@ -66,7 +72,7 @@ def main():
 
     init(options.database_file)
 
-    http_server = tornado.httpserver.HTTPServer(setup_application())
+    http_server = tornado.httpserver.HTTPServer(setup_application(options.group_dict('application')))
     http_server.listen(options.port)
 
     if options.arduino_tty:

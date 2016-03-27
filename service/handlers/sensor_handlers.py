@@ -1,18 +1,18 @@
 from __future__ import with_statement
-import logging
-
-logger = logging.getLogger("arduino.server")
 from tornado.gen import coroutine
+from tornado.options import options
 from concurrent.futures import ThreadPoolExecutor
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from service.models import Settings
+from os.path import join
+import smtplib
 import datetime
 import time
 import threading
+import logging
 
-import smtplib
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-
-from service.models import Settings
+logger = logging.getLogger("arduino.server")
 
 MAX_WORKERS = 4
 executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
@@ -44,8 +44,8 @@ def send_mail(image_list):
     logger.info("Sending mail...")
     msg = MIMEMultipart()
     msg['Subject'] = '{} Motion detected...'.format(datetime.datetime.utcnow().strftime("%Y-%m-%d-%H:%M:%S.%f"))
-    msg['From'] = "iothomechris@gmail.com"
-    msg['To'] = "xpapazaf@gmail.com"
+    msg['From'] = options["mail_from"]
+    msg['To'] = options["mail_to"]
     msg.preamble = 'Home Monitoring...'
     for file in image_list:
         # Open the files in binary mode.  Let the MIMEImage class automatically
@@ -62,7 +62,7 @@ def send_mail(image_list):
         s = smtplib.SMTP('smtp.gmail.com', 587)
         s.set_debuglevel(True)
         s.starttls()
-        s.login('************', '********')
+        s.login(options["mail_login_uname"], options["mail_login_passwd"])
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
         logger.info("Email sent")
@@ -82,14 +82,14 @@ def notify():
 @coroutine
 def temperature_handler(device, temperature):
     log_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + temperature + "\n"
-    with open("/media/pi/RPI/raspberry/temperature.log", "a") as myfile:
+    with open(join(options["storage_location"], "temperature.log"), "a") as myfile:
         myfile.write(log_data)
 
 
 @coroutine
 def humidity_handler(device, humidity):
     log_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + humidity + "\n"
-    with open("/media/pi/RPI/raspberry/humidity.log", "a") as myfile:
+    with open(join(options["storage_location"], "humidity.log"), "a") as myfile:
         myfile.write(log_data)
 
 
