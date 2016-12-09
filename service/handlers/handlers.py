@@ -89,21 +89,30 @@ class CurentStatusHandler(BaseHandler):
 
            :status 200: ok
         """
-        with open(os.path.join(self.application.settings["storage_location"], "humidity.log"), "r") as myfile:
-            myfile.seek (0, 2)           # Seek @ EOF
-            fsize = myfile.tell()        # Get Size
-            myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars
-            humidity_lines = myfile.readlines()       # Read to end
+        humidity_content = []
+        temperature_content = []
 
-        humidity_content = humidity_lines[-60:]    # Get last 60 lines
+        try:
+            with open(os.path.join(self.application.settings["storage_location"], "humidity.log"), "r") as myfile:
+                myfile.seek (0, 2)           # Seek @ EOF
+                fsize = myfile.tell()        # Get Size
+                myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars
+                humidity_lines = myfile.readlines()       # Read to end
 
-        with open(os.path.join(self.application.settings["storage_location"], "temperature.log"), "r") as myfile:
-            myfile.seek (0, 2)           # Seek @ EOF
-            fsize = myfile.tell()        # Get Size
-            myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars
-            temperature_lines = myfile.readlines()       # Read to end
+            humidity_content = humidity_lines[-60:]    # Get last 60 lines
+        except EnvironmentError:
+            logger.error('Couldnt open humidity.log')
+            
+        try:
+            with open(os.path.join(self.application.settings["storage_location"], "temperature.log"), "r") as myfile:
+                myfile.seek (0, 2)           # Seek @ EOF
+                fsize = myfile.tell()        # Get Size
+                myfile.seek (max (fsize-1024, 0), 0) # Set pos @ last n chars
+                temperature_lines = myfile.readlines()       # Read to end
 
-        temperature_content = temperature_lines[-60:]    # Get last 60 lines
+            temperature_content = temperature_lines[-60:]    # Get last 60 lines
+        except EnvironmentError:
+            logger.error('Couldnt open temperature.log')
 
         humidity_list = []
 
