@@ -73,11 +73,11 @@ def main():
     init(options.database_file)
 
     http_server = tornado.httpserver.HTTPServer(setup_application(options.group_dict('application')))
-    http_server.listen(options.port)
+    http_server.listen(os.getenv('OIKOSENSE_PORT', options.port))
 
-    if options.arduino_tty:
+    if os.getenv('OIKOSENSE_ARDUINO_TTY', options.arduino_tty):
         hermes_server = SonersServer(hermes_urls)
-        hermes_server.listen(options.arduino_tty)
+        hermes_server.listen(os.getenv('OIKOSENSE_ARDUINO_TTY', options.arduino_tty))
 
     tornado.ioloop.IOLoop.instance().start()
 

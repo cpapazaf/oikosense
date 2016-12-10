@@ -23,5 +23,8 @@ COPY . ./
 # switch on systemd init system in container
 ENV INITSYSTEM on
 
+# Print the connected devices
+RUN ./Scripts/list_devices.sh
+
 # main.py will run when container starts up on the device
 CMD ["python","server.py"]
