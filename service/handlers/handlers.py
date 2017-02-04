@@ -12,6 +12,7 @@ import time
 from time import gmtime, strftime
 import datetime
 import subprocess
+import requests
 
 logger = logging.getLogger("arduino.server")
 
@@ -144,7 +145,14 @@ class CurentStatusHandler(BaseHandler):
                 except:
                     pass
 
-        result = {'temperature': temperature_list, 'humidity': humidity_list}
+        # fetch current data from openweathermap
+        try:
+            g = requests.get('http://api.openweathermap.org/data/2.5/weather?q=Stockholm,se&APPID=db449f2cdfe8b4e06009a4bb37ec592e&units=metric')
+            external_temp = json.loads(g.content.decode("utf-8"))['main']['temp']
+        except:
+            external_temp = 100
+
+        result = {'temperature': temperature_list, 'humidity': humidity_list, 'ext_temperature': external_temp}
 
         self.write(tornado.escape.json_encode(result))
 

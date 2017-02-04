@@ -1,4 +1,5 @@
 soners==1.0.7
 peewee==2.2.3
 tornado==4.1
+requests==2.12.3
 pyserial==3.2.1

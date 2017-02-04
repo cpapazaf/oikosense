@@ -23,6 +23,12 @@
             </canvas>
         </div>
 
+        <h3>External</h3>
+        <br/>
+        <div class="container" style="width:80%;height:80%">
+            External Temperature: {{externalTemp}}
+        </div>
+
         <h3>Settings</h3>
         <br/>
         <div class="container" style="width:80%;height:80%">
@@ -63,6 +69,7 @@
                 var tempr = [];
                 var times = [];
                 var hums  = [];
+                $scope.externalTemp = response.ext_temperature;
 
                 for(var i = 0; i < response.temperature.length; i++) {
                     tempr.push(parseInt(response.temperature[i].temperature));
