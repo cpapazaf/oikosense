@@ -26,7 +26,14 @@
         <h3>External</h3>
         <br/>
         <div class="container" style="width:80%;height:80%">
-            External Temperature: {{externalTemp}}
+           <p>External Temperature: <span ng-bind="externalTemp"></span>
+<br/>•If outside temperature is 20 to 40 degrees, humidity indoors should not be more than 40 percent.
+<br/>• If outside temperature is 10 to 20 degrees, humidity indoors should not be more than 35 percent.
+<br/>• If outside temperature is 0 to 10 degrees, humidity indoors should not be more than 30 percent.
+<br/>• If outside temperature is 10-below to 0, humidity indoors should not be more than 25 percent.
+<br/>• If outside temperature is 20-below to 10-below, humidity indoors should not be more than 20 percent.
+<br/>• If outdoor temperature is lower than 20-below, inside humidity should not be more than 15 percent.
+            </p>
         </div>
 
         <h3>Settings</h3>
