@@ -31,7 +31,7 @@ def take_photos():
     for i in range(3):
         time.sleep(2)
         ret, im = capture.read()
-        img_file = '/media/usb/images/{}-test-{}.png'.format(datetime.datetime.utcnow().strftime("%Y-%m-%d-%H:%M:%S.%f"), i)
+        img_file = '/media/usb/images/{}-test-{}.png'.format(datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S.%f"), i)
         cv2.imwrite(img_file, im)
         image_list.append(img_file)
     
@@ -43,7 +43,7 @@ def take_photos():
 def send_mail(image_list):
     logger.info("Sending mail...")
     msg = MIMEMultipart()
-    msg['Subject'] = '{} Motion detected...'.format(datetime.datetime.utcnow().strftime("%Y-%m-%d-%H:%M:%S.%f"))
+    msg['Subject'] = '{} Motion detected...'.format(datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S.%f"))
     msg['From'] = options["mail_from"]
     msg['To'] = options["mail_to"]
     msg.preamble = 'Home Monitoring...'
@@ -81,14 +81,14 @@ def notify():
 
 @coroutine
 def temperature_handler(device, temperature):
-    log_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + temperature + "\n"
+    log_data = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + temperature + "\n"
     with open(join(options["storage_location"], "temperature.log"), "a") as myfile:
         myfile.write(log_data)
 
 
 @coroutine
 def humidity_handler(device, humidity):
-    log_data = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + humidity + "\n"
+    log_data = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f") + "\t" + humidity + "\n"
     with open(join(options["storage_location"], "humidity.log"), "a") as myfile:
         myfile.write(log_data)
 
