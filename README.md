@@ -9,6 +9,7 @@ Built on:
 * [Soners](https://github.com/cpapazaf/soners)
 * [peewee](https://github.com/coleifer/peewee)
 * [angulatjs](https://angularjs.org/)
+* [resinio](https://resin.io/)
 
 ## Contribution
 
